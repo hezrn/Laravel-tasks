@@ -19,28 +19,29 @@ class TaskController extends Controller
     }
 
     public function store(Request $request)
-    {
-        Task::create($request->all());
+{
+    $data = $request->all();
+    $data['is_completed'] = $request->has('is_completed') ? true : false;
+    $task = Task::create($data);
+    return response()->json(['success'=>true, 'task'=>$task]);
+}
 
-        return redirect('/tasks');
-    }
+public function update(Request $request, Task $task)
+{
+    $data = $request->all();
+    $data['is_completed'] = $request->has('is_completed') ? true : false;
+    $task->update($data);
+    return response()->json(['success'=>true, 'task'=>$task]);
+}
 
-    public function edit(Task $task)
-    {
-        return view('tasks.edit', compact('task'));
-    }
+public function destroy(Task $task)
+{
+    $task->delete();
+    return response()->json(['success'=>true]);
+}
 
-    public function update(Request $request, Task $task)
-    {
-        $task->update($request->all());
-
-        return redirect('/tasks');
-    }
-
-    public function destroy(Task $task)
-    {
-        $task->delete();
-
-        return redirect('/tasks');
-    }
+public function show(Task $task)
+{
+    return response()->json(['task'=>$task]);
+}
 }
