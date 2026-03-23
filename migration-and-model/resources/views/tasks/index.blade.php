@@ -1,190 +1,169 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Tasks List</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        body { font-family: Arial; background-color: #f5f3ff; padding: 20px; }
-        h1 { color: #5b21b6; }
-        a.button {
-            background-color: #7c3aed; color: white; padding: 8px 15px; text-decoration: none;
-            border-radius: 5px; margin-bottom: 10px; display: inline-block;
-        }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        table, th, td { border: 1px solid #c4b5fd; }
-        th, td { padding: 10px; text-align: left; }
-        th { background-color: #8b5cf6; color: white; }
-        td { background-color: #ede9fe; }
-        button, .edit-btn { background-color: #9333ea; color: white; border: none;
-            padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right:5px;
-        }
-        button:hover, .edit-btn:hover { background-color: #7e22ce; }
-        input, textarea { width: 90%; padding: 5px; margin: 2px 0; border-radius:4px; border:1px solid #d8b4fe; }
-        .hidden { display: none; }
-        #message { margin-bottom:10px; font-weight:bold; color:green; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Task Manager</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body>
 
-<h1>Task List</h1>
+<body class="bg-gradient-to-br from-black via-purple-950 to-gray-900 min-h-screen text-white">
 
-<div id="message"></div>
+<div class="max-w-4xl mx-auto p-4">
 
-<h2>Create Task</h2>
-<form id="taskForm">
-    <input type="text" name="title" placeholder="Title" required>
-    <br>
-    <textarea name="description" placeholder="Description"></textarea>
-    <br>
-    <label><input type="checkbox" name="is_completed" value="1"> Completed</label>
-    <br><br>
-    <button type="submit">Save Task</button>
-</form>
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-purple-400">✨ Task Manager</h1>
+        
+    </div>
 
-<h2>Tasks Table</h2>
-<table id="tasksTable">
-    <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
-    @foreach($tasks as $task)
-    <tr data-id="{{ $task->id }}">
-        <td class="title">{{ $task->title }}</td>
-        <td class="description">{{ $task->description }}</td>
-        <td class="status">@if($task->is_completed) Completed @else Pending @endif</td>
-        <td>
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
-        </td>
-    </tr>
-    @endforeach
-</table>
+    <!-- Toast -->
+    <div id="toast" class="fixed top-5 right-5 bg-purple-600 px-4 py-1.5 rounded-md shadow-lg hidden"></div>
+
+    <!-- Create Task Card -->
+    <div class="bg-white/5 backdrop-blur-lg border border-purple-500 rounded-2xl p-4 mb-6 shadow-xl">
+        <h2 class="text-lg font-semibold mb-3 text-purple-300">Create Task</h2>
+
+        <form id="taskForm" class="grid gap-4">
+            <input type="text" name="title" placeholder="Task title" required
+                class="p-2 rounded-md bg-black/60 border border-purple-400 focus:ring-2 focus:ring-purple-500 outline-none">
+
+            <textarea name="description" placeholder="Task description"
+                class="p-2 rounded-md bg-black/60 border border-purple-400 focus:ring-2 focus:ring-purple-500 outline-none"></textarea>
+
+            <label class="flex items-center gap-2">
+                <input type="checkbox" name="is_completed" class="accent-purple-500">
+                Completed
+            </label>
+
+            <button class="bg-purple-600 hover:bg-purple-700 transition py-1.5 rounded-md font-semibold">
+                ➕ Add Task
+            </button>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white/5 backdrop-blur-lg border border-purple-500 rounded-2xl p-4 shadow-lg mt-4">
+        <h2 class="text-lg font-semibold mb-3 text-purple-300">Tasks</h2>
+
+        <div class="overflow-x-auto mt-2">
+            <table class="w-full">
+                <thead>
+                    <tr class="text-left text-purple-300 border-b border-purple-700">
+                        <th class="p-2 text-center">Title</th>
+                        <th class="p-2 text-center">Description</th>
+                        <th class="p-2 text-center">Status</th>
+                        <th class="p-2 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTable">
+
+                @foreach($tasks as $task)
+                <tr data-id="{{ $task->id }}" class="border-b border-purple-900 hover:bg-purple-900/30 transition">
+                    <td class="title p-2 text-center">{{ $task->title }}</div>
+                    </td>
+                    <td class="description p-2 text-center">{{ $task->description }}</div>
+                    </td>
+                    <td class="status p-2 text-center">
+                        @if($task->is_completed)
+                        <span class="text-green-400">✔ Completed</span>
+                        @else
+                        <span class="text-yellow-400">⏳ Pending</span>
+                        @endif
+                    </div>
+                    </td>
+                    <td class="p-2">
+                        <div class="flex items-center justify-center gap-2">
+                        <button class="edit-btn bg-blue-500 hover:bg-blue-600 px-2.5 py-1 rounded-md text-sm">Edit</button>
+                        <button class="delete-btn bg-red-500 hover:bg-red-600 px-2.5 py-1 rounded-md text-sm">Delete</button>
+                    </div>
+                    </td>
+                </tr>
+                @endforeach
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center">
+    <div class="bg-gray-900 p-5 rounded-xl w-full max-w-sm border border-purple-500 mx-auto">
+        <h2 class="text-xl mb-4">Edit Task</h2>
+
+        <input id="modalTitle" class="w-full p-2 mb-3 bg-black border border-purple-400 rounded">
+        <textarea id="modalDesc" class="w-full p-2 mb-3 bg-black border border-purple-400 rounded"></textarea>
+
+        <label class="flex items-center gap-2 mb-4">
+            <input type="checkbox" id="modalCompleted"> Completed
+        </label>
+
+        <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="bg-gray-600 px-3 py-1 rounded">Cancel</button>
+            <button id="saveEdit" class="bg-green-500 px-3 py-1 rounded">Save</button>
+        </div>
+    </div>
+</div>
 
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+let currentId = null;
 
-// Create Task
-document.getElementById('taskForm').addEventListener('submit', function(e) {
+function showToast(msg){
+    let toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.remove('hidden');
+    setTimeout(()=>toast.classList.add('hidden'),2000);
+}
+
+// Create
+document.getElementById('taskForm').addEventListener('submit', function(e){
     e.preventDefault();
-    let form = e.target;
-    let data = new FormData(form);
+    let data = new FormData(this);
 
-    fetch('/tasks', {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': csrfToken },
-        body: data
-    })
-    .then(res => res.json())
-    .then(task => {
-        let table = document.getElementById('tasksTable');
-        let row = document.createElement('tr');
-        row.setAttribute('data-id', task.task.id);
-        row.innerHTML = `
-            <td class="title">${task.task.title}</td>
-            <td class="description">${task.task.description}</td>
-            <td class="status">${task.task.is_completed ? 'Completed' : 'Pending'}</td>
-            <td>
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
-            </td>
-        `;
-        table.appendChild(row);
-        document.getElementById('message').innerText = 'Task created!';
-        form.reset();
-    })
-    .catch(err => console.error(err));
+    fetch('/tasks', { method:'POST', headers:{'X-CSRF-TOKEN':csrfToken}, body:data })
+    .then(res=>res.json())
+    .then(()=> location.reload());
 });
 
-// Handle Edit & Delete
-document.getElementById('tasksTable').addEventListener('click', function(e) {
+// Table actions
+document.getElementById('tasksTable').addEventListener('click', function(e){
     let row = e.target.closest('tr');
-    let taskId = row.getAttribute('data-id');
+    let id = row.dataset.id;
 
-    // DELETE
-    if(e.target.classList.contains('delete-btn')) {
-        if(!confirm('Delete this task?')) return;
-        fetch(`/tasks/${taskId}`, {
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': csrfToken }
-        })
-        .then(res => res.json())
-        .then(data => {
-            row.remove();
-            document.getElementById('message').innerText = 'Task deleted!';
-        });
+    if(e.target.classList.contains('delete-btn')){
+        if(confirm('Delete?')){
+            fetch(`/tasks/${id}`,{ method:'DELETE', headers:{'X-CSRF-TOKEN':csrfToken}})
+            .then(()=>{ row.remove(); showToast('Deleted!'); });
+        }
     }
 
-    // EDIT
-    if(e.target.classList.contains('edit-btn')) {
-        // Replace row with editable inputs
-        let title = row.querySelector('.title').innerText;
-        let desc = row.querySelector('.description').innerText;
-        let status = row.querySelector('.status').innerText;
-
-        row.innerHTML = `
-            <td><input type="text" value="${title}" class="edit-title"></td>
-            <td><textarea class="edit-desc">${desc}</textarea></td>
-            <td><input type="checkbox" class="edit-completed" ${status==='Completed'?'checked':''}></td>
-            <td>
-                <button class="save-edit-btn">Save</button>
-                <button class="cancel-edit-btn">Cancel</button>
-            </td>
-        `;
+    if(e.target.classList.contains('edit-btn')){
+        currentId = id;
+        document.getElementById('modalTitle').value = row.querySelector('.title').innerText;
+        document.getElementById('modalDesc').value = row.querySelector('.description').innerText;
+        document.getElementById('modalCompleted').checked = row.querySelector('.status').innerText.includes('Completed');
+        document.getElementById('modal').classList.remove('hidden');
     }
-
-    // SAVE EDIT
-    if(e.target.classList.contains('save-edit-btn')) {
-        let title = row.querySelector('.edit-title').value;
-        let desc = row.querySelector('.edit-desc').value;
-        let completed = row.querySelector('.edit-completed').checked;
-
-        let data = new FormData();
-        data.append('title', title);
-        data.append('description', desc);
-        data.append('is_completed', completed ? 1 : 0);
-        data.append('_method','PUT');
-
-        fetch(`/tasks/${taskId}`, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken },
-            body: data
-        })
-        .then(res => res.json())
-        .then(task => {
-            row.innerHTML = `
-                <td class="title">${task.task.title}</td>
-                <td class="description">${task.task.description}</td>
-                <td class="status">${task.task.is_completed ? 'Completed' : 'Pending'}</td>
-                <td>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </td>
-            `;
-            document.getElementById('message').innerText = 'Task updated!';
-        });
-    }
-
-    // CANCEL EDIT
-    if(e.target.classList.contains('cancel-edit-btn')) {
-        // reload original row data
-        fetch(`/tasks/${taskId}`)
-        .then(res=>res.json())
-        .then(task=>{
-            row.innerHTML = `
-                <td class="title">${task.task.title}</td>
-                <td class="description">${task.task.description}</td>
-                <td class="status">${task.task.is_completed ? 'Completed' : 'Pending'}</td>
-                <td>
-                    <button class="edit-btn">Edit</button>
-                    <button class="delete-btn">Delete</button>
-                </td>
-            `;
-        });
-    }
-
 });
+
+// Save Edit
+document.getElementById('saveEdit').onclick = function(){
+    let data = new FormData();
+    data.append('title', modalTitle.value);
+    data.append('description', modalDesc.value);
+    data.append('is_completed', modalCompleted.checked ? 1:0);
+    data.append('_method','PUT');
+
+    fetch(`/tasks/${currentId}`,{ method:'POST', headers:{'X-CSRF-TOKEN':csrfToken}, body:data })
+    .then(()=> location.reload());
+}
+
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+
+
 </script>
 
 </body>
