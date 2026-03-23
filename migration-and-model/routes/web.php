@@ -3,16 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 
-// 1. Greet page for base URL '/'
-Route::get('/', function () {
-    // You can set a default name like 'Guest' or 'Hezreen'
-    return view('greet', ['name' => 'Hezreen']);
-});
-
-// 2. Optional greet page with a name parameter
-Route::get('/greet/{name}', function ($name) {
+// Handle BOTH /greet and /greet/
+Route::get('/greet/{name?}', function ($name = null) {
     return view('greet', ['name' => $name]);
 });
 
-// 3. Tasks CRUD routes
+// Tasks
 Route::resource('tasks', TaskController::class);

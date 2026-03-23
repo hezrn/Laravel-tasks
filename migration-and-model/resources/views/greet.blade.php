@@ -2,45 +2,26 @@
 <html>
 <head>
     <title>Greeting</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #afabc0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        h1 {
-            color: #5b21b6;
-            font-size: 40px;
-        }
-        p {
-            color: #6d28d9;
-            font-size: 18px;
-        }
-        a.button {
-            margin-top: 20px;
-            background-color: #7c3aed;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-        a.button:hover {
-            background-color: #6d28d9;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
 
-<h1>Hello, {{ $name }}!</h1>
-<p>Welcome to Laravel!</p>
+<body class="bg-gradient-to-br from-purple-900 via-black to-purple-700 min-h-screen flex items-center justify-center text-white">
 
-<a href="/tasks" class="button">Go to Tasks</a>
+    <div class="bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-lg text-center border border-purple-400 w-[350px]">
+
+        @if(!empty($name))
+            <!-- WITH NAME -->
+            <h1 class="text-3xl font-bold text-purple-300">
+                Hi {{ $name }} , Welcome! 🎉
+            </h1>
+        @else
+            <!-- ONLY HELLO -->
+            <h1 class="text-3xl font-bold text-purple-300">
+                Hello 👋
+            </h1>
+        @endif
+
+    </div>
 
 </body>
 </html>
