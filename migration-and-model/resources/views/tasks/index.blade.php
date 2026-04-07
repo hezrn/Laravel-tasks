@@ -14,7 +14,7 @@
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-purple-400">✨ Task Manager</h1>
+        <h1 class="text-3xl font-bold text-purple-400">Task Manager</h1>
         
     </div>
 
@@ -22,7 +22,7 @@
     <div id="toast" class="fixed top-5 right-5 bg-purple-600 px-4 py-1.5 rounded-md shadow-lg hidden"></div>
 
     <!-- Create Task Card -->
-    <div class="bg-white/5 backdrop-blur-lg border border-purple-500 rounded-2xl p-4 mb-6 shadow-xl">
+    <div id="createCard" class="bg-white/5 backdrop-blur-lg border border-purple-500 rounded-2xl p-4 mb-6 shadow-xl">
         <h2 class="text-lg font-semibold mb-3 text-purple-300">Create Task</h2>
 
         <form id="taskForm" class="grid gap-4">
@@ -41,6 +41,53 @@
                 ➕ Add Task
             </button>
         </form>
+    </div>
+
+    <!-- Edit Task Card (Hidden by default) -->
+    <div id="editCard" class="bg-white/5 backdrop-blur-lg border border-purple-500 rounded-2xl p-4 mb-6 shadow-xl hidden">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-lg font-semibold text-purple-300">Edit Task</h2>
+            <button onclick="cancelEdit()" class="text-gray-400 hover:text-white">✕</button>
+        </div>
+
+        <form id="editForm" class="grid gap-4">
+            <input type="text" id="editTitle" placeholder="Task title" required
+                class="p-2 rounded-md bg-black/60 border border-purple-400 focus:ring-2 focus:ring-purple-500 outline-none">
+
+            <textarea id="editDesc" placeholder="Task description"
+                class="p-2 rounded-md bg-black/60 border border-purple-400 focus:ring-2 focus:ring-purple-500 outline-none"></textarea>
+
+            <label class="flex items-center gap-2">
+                <input type="checkbox" id="editCompleted" class="accent-purple-500">
+                Completed
+            </label>
+
+            <div class="flex gap-2">
+                <button type="button" onclick="cancelEdit()" class="flex-1 bg-gray-600 hover:bg-gray-700 transition py-1.5 rounded-md font-semibold">
+                    Cancel
+                </button>
+                <button type="button" onclick="saveEdit()" class="flex-1 bg-green-600 hover:bg-green-700 transition py-1.5 rounded-md font-semibold">
+                    ✓ Save
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center z-50">
+        <div class="bg-gray-900 p-6 rounded-2xl w-full max-w-sm border border-red-500 mx-auto shadow-xl">
+            <h2 class="text-xl font-semibold mb-4 text-red-400">Delete Task</h2>
+            <p class="text-gray-300 mb-6">Are you sure you want to delete this task? This action cannot be undone.</p>
+            
+            <div class="flex gap-3">
+                <button type="button" onclick="cancelDelete()" class="flex-1 bg-gray-600 hover:bg-gray-700 transition py-2 rounded-md font-semibold">
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 transition py-2 rounded-md font-semibold">
+                    Delete
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Table -->
@@ -88,28 +135,10 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div id="modal" class="fixed inset-0 bg-black/70 hidden flex items-center justify-center">
-    <div class="bg-gray-900 p-5 rounded-xl w-full max-w-sm border border-purple-500 mx-auto">
-        <h2 class="text-xl mb-4">Edit Task</h2>
-
-        <input id="modalTitle" class="w-full p-2 mb-3 bg-black border border-purple-400 rounded">
-        <textarea id="modalDesc" class="w-full p-2 mb-3 bg-black border border-purple-400 rounded"></textarea>
-
-        <label class="flex items-center gap-2 mb-4">
-            <input type="checkbox" id="modalCompleted"> Completed
-        </label>
-
-        <div class="flex justify-end gap-2">
-            <button onclick="closeModal()" class="bg-gray-600 px-3 py-1 rounded">Cancel</button>
-            <button id="saveEdit" class="bg-green-500 px-3 py-1 rounded">Save</button>
-        </div>
-    </div>
-</div>
-
 <script>
 const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 let currentId = null;
+let deleteId = null;
 
 function showToast(msg){
     let toast = document.getElementById('toast');
@@ -134,35 +163,57 @@ document.getElementById('tasksTable').addEventListener('click', function(e){
     let id = row.dataset.id;
 
     if(e.target.classList.contains('delete-btn')){
-        if(confirm('Delete?')){
-            fetch(`/tasks/${id}`,{ method:'DELETE', headers:{'X-CSRF-TOKEN':csrfToken}})
-            .then(()=>{ row.remove(); showToast('Deleted!'); });
-        }
+        deleteId = id;
+        document.getElementById('deleteModal').classList.remove('hidden');
     }
 
     if(e.target.classList.contains('edit-btn')){
         currentId = id;
-        document.getElementById('modalTitle').value = row.querySelector('.title').innerText;
-        document.getElementById('modalDesc').value = row.querySelector('.description').innerText;
-        document.getElementById('modalCompleted').checked = row.querySelector('.status').innerText.includes('Completed');
-        document.getElementById('modal').classList.remove('hidden');
+        // Show edit card and hide create card
+        document.getElementById('createCard').classList.add('hidden');
+        document.getElementById('editCard').classList.remove('hidden');
+        
+        // Fill in the edit form with current task data
+        document.getElementById('editTitle').value = row.querySelector('.title').innerText;
+        document.getElementById('editDesc').value = row.querySelector('.description').innerText;
+        document.getElementById('editCompleted').checked = row.querySelector('.status').innerText.includes('Completed');
+        
+        // Scroll to top to show edit card
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 });
 
 // Save Edit
-document.getElementById('saveEdit').onclick = function(){
+function saveEdit(){
     let data = new FormData();
-    data.append('title', modalTitle.value);
-    data.append('description', modalDesc.value);
-    data.append('is_completed', modalCompleted.checked ? 1:0);
+    data.append('title', document.getElementById('editTitle').value);
+    data.append('description', document.getElementById('editDesc').value);
+    data.append('is_completed', document.getElementById('editCompleted').checked ? 1:0);
     data.append('_method','PUT');
 
     fetch(`/tasks/${currentId}`,{ method:'POST', headers:{'X-CSRF-TOKEN':csrfToken}, body:data })
     .then(()=> location.reload());
 }
 
-function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+function cancelEdit(){ 
+    document.getElementById('createCard').classList.remove('hidden');
+    document.getElementById('editCard').classList.add('hidden');
+    currentId = null;
+}
 
+function confirmDelete(){
+    fetch(`/tasks/${deleteId}`,{ method:'DELETE', headers:{'X-CSRF-TOKEN':csrfToken}})
+    .then(()=>{ 
+        document.querySelector(`tr[data-id="${deleteId}"]`).remove();
+        showToast('Deleted!'); 
+        cancelDelete();
+    });
+}
+
+function cancelDelete(){
+    document.getElementById('deleteModal').classList.add('hidden');
+    deleteId = null;
+}
 
 </script>
 
