@@ -12,12 +12,12 @@
         @if(!empty($name))
             <!-- WITH NAME -->
             <h1 class="text-3xl font-bold text-purple-300">
-                Hi {{ $name }} , Welcome! 🎉
+                Hi {{ $name }} , Welcome! 
             </h1>
         @else
             <!-- ONLY HELLO -->
             <h1 class="text-3xl font-bold text-purple-300">
-                Hello 👋
+                Hello
             </h1>
         @endif
 
