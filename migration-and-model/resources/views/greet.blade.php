@@ -12,7 +12,7 @@
         @if(!empty($name))
             <!-- WITH NAME -->
             <h1 class="text-3xl font-bold text-purple-300">
-                Hi {{ $name }} , Welcome! 
+                Hi {{ $name }}, welcome!
             </h1>
         @else
             <!-- ONLY HELLO -->
@@ -20,6 +20,12 @@
                 Hello
             </h1>
         @endif
+
+        <div class="mt-8">
+            <a href="/tasks" class="inline-flex items-center justify-center rounded-full bg-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-purple-500/25 transition hover:bg-purple-700">
+                Go to Tasks
+            </a>
+        </div>
 
     </div>
 
