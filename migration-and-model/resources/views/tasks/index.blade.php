@@ -15,7 +15,9 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-purple-400">Task Manager</h1>
-        
+        <a href="/" class="rounded-full bg-white/10 border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15">
+            Back to Greeting
+        </a>
     </div>
 
     <!-- Toast -->
